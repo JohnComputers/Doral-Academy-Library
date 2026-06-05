@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Doral Academy Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --white:#ffffff;
+    --paper:#fbf9f7;
+    --ink:#1c1a19;
+    --muted:#6f6864;
+    --line:#e7e1dc;
+    --red:#c0162c;
+    --red-dark:#931021;
+    --red-soft:#fdeef0;
+    --green:#1f7a4d;
+    --green-soft:#e9f5ee;
+    --shadow:0 1px 2px rgba(28,26,25,.04),0 12px 32px -12px rgba(28,26,25,.18);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Newsreader",Georgia,serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:"Fraunces",Georgia,serif;letter-spacing:-.01em}
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  input,select{font-family:inherit;font-size:1rem}
+
+  /* ---------- layout ---------- */
+  header.topbar{
+    position:sticky;top:0;z-index:40;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar-inner{
+    max-width:1140px;margin:0 auto;padding:14px 22px;
+    display:flex;align-items:center;gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;font-family:"Fraunces";font-weight:700;font-size:1.22rem}
+  .crest{
+    width:34px;height:34px;border-radius:9px;flex:none;
+    background:var(--red);color:#fff;display:grid;place-items:center;
+    font-family:"Fraunces";font-weight:700;font-size:1rem;
+    box-shadow:0 6px 16px -6px rgba(192,22,44,.6);
+  }
+  .brand small{display:block;font-family:"Newsreader";font-weight:400;font-size:.72rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+  .spacer{flex:1}
+  .nav-pill{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px}
+  .nav-pill button{
+    padding:7px 16px;border-radius:999px;font-size:.95rem;color:var(--muted);
+    transition:color .2s,background .2s;
+  }
+  .nav-pill button.active{background:var(--red);color:#fff}
+  .nav-pill button:hover:not(.active){color:var(--ink)}
+  .who{display:flex;align-items:center;gap:10px;font-size:.9rem}
+  .who .badge{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;background:var(--red-soft);color:var(--red-dark);padding:3px 9px;border-radius:999px;font-family:"Newsreader";font-weight:500}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:11px 20px;border-radius:10px;font-size:.96rem;font-weight:500;
+    transition:transform .15s,background .2s,box-shadow .2s,border-color .2s;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{background:var(--red-dark);box-shadow:0 8px 20px -8px rgba(192,22,44,.6)}
+  .btn-ghost{border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--red);color:var(--red)}
+  .btn-sm{padding:7px 13px;font-size:.86rem;border-radius:8px}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+
+  main{max-width:1140px;margin:0 auto;padding:34px 22px 80px}
+  .page{display:none;animation:fade .45s ease both}
+  .page.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- hero ---------- */
+  .hero{
+    border:1px solid var(--line);border-radius:22px;background:
+      radial-gradient(120% 140% at 100% 0%,var(--red-soft) 0%,transparent 45%),#fff;
+    padding:48px 44px;position:relative;overflow:hidden;box-shadow:var(--shadow);
+  }
+  .hero .eyebrow{font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);font-weight:500}
+  .hero h1{font-size:clamp(2.1rem,4.5vw,3.3rem);line-height:1.02;margin:14px 0 12px;max-width:14ch}
+  .hero p{color:var(--muted);max-width:46ch;font-size:1.08rem}
+  .hero > *{position:relative;z-index:1}
+  .hero .actions{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+  .hero .rule{position:absolute;right:-50px;bottom:-50px;width:200px;height:200px;border-radius:50%;border:18px solid var(--red-soft);z-index:0;pointer-events:none}
+
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+  .stat b{font-family:"Fraunces";font-size:2rem;display:block;line-height:1}
+  .stat span{color:var(--muted);font-size:.9rem}
+
+  /* ---------- cards / sections ---------- */
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:34px 0 16px;flex-wrap:wrap}
+  .section-head h2{font-size:1.6rem}
+  .section-head p{color:var(--muted);font-size:.95rem}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:.8rem;color:var(--muted);letter-spacing:.04em}
+  .input{
+    padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;
+    transition:border-color .2s,box-shadow .2s;width:100%;
+  }
+  .input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+  .search{position:relative;flex:1;min-width:220px}
+  .search input{padding-left:38px}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .book{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;
+    display:flex;flex-direction:column;gap:6px;position:relative;
+    transition:transform .2s,box-shadow .2s,border-color .2s;animation:fade .4s ease both;
+  }
+  .book:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:#dcd4cd}
+  .book .spine{position:absolute;left:0;top:18px;bottom:18px;width:4px;border-radius:0 4px 4px 0;background:var(--red)}
+  .book h3{font-size:1.18rem;line-height:1.15;padding-left:8px}
+  .book .author{color:var(--muted);font-style:italic;padding-left:8px}
+  .book .isbn{font-size:.78rem;color:var(--muted);font-family:ui-monospace,monospace;letter-spacing:.02em;padding-left:8px;margin-top:4px}
+  .book .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-left:8px}
+  .pill{font-size:.74rem;font-weight:500;padding:4px 11px;border-radius:999px;letter-spacing:.02em}
+  .pill.out{background:var(--red-soft);color:var(--red-dark)}
+  .pill.in{background:var(--green-soft);color:var(--green)}
+  .book .holder{font-size:.8rem;color:var(--muted);padding-left:8px}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .panel + .panel{margin-top:18px}
+
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;font-family:"Newsreader"}
+  tr:last-child td{border-bottom:none}
+  tbody tr{transition:background .15s}
+  tbody tr:hover{background:var(--paper)}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;padding:3px 9px;border-radius:7px}
+  .tag.checkout{background:var(--red-soft);color:var(--red-dark)}
+  .tag.return{background:var(--green-soft);color:var(--green)}
+
+  .empty{text-align:center;color:var(--muted);padding:42px 20px;border:1px dashed var(--line);border-radius:var(--radius);background:#fff}
+  .empty b{display:block;font-family:"Fraunces";color:var(--ink);font-size:1.15rem;margin-bottom:4px}
+
+  /* ---------- auth / modal ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:60;background:rgba(28,26,25,.45);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;padding:20px;animation:fade .25s ease both;
+  }
+  .overlay.show{display:flex}
+  .modal{
+    background:#fff;border-radius:18px;width:100%;max-width:430px;padding:30px;box-shadow:var(--shadow);
+    animation:pop .3s cubic-bezier(.2,.8,.3,1) both;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  .modal h2{font-size:1.5rem}
+  .modal .sub{color:var(--muted);font-size:.92rem;margin:4px 0 18px}
+  .modal .field{margin-bottom:13px}
+  .modal-x{position:absolute;top:16px;right:18px;font-size:1.4rem;color:var(--muted);line-height:1}
+  .modal-wrap{position:relative}
+  .switch{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:18px}
+  .switch button{flex:1;padding:9px;border-radius:7px;font-size:.9rem;color:var(--muted);transition:.2s}
+  .switch button.active{background:#fff;color:var(--red);box-shadow:var(--shadow)}
+  .divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.82rem;margin:16px 0}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-weight:500;transition:.2s}
+  .google:hover{border-color:#dcd4cd;background:var(--paper)}
+  .note{font-size:.85rem;padding:10px 12px;border-radius:9px;margin-top:6px;display:none}
+  .note.err{display:block;background:var(--red-soft);color:var(--red-dark)}
+  .note.ok{display:block;background:var(--green-soft);color:var(--green)}
+  .full{width:100%}
+
+  /* ---------- toast ---------- */
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);z-index:80;
+    background:var(--ink);color:#fff;padding:13px 20px;border-radius:11px;font-size:.92rem;opacity:0;
+    transition:.3s;pointer-events:none;box-shadow:var(--shadow);max-width:90vw}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---------- loading ---------- */
+  .spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite;display:inline-block}
+  .spin.dark{border-color:var(--line);border-top-color:var(--red)}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  #boot{position:fixed;inset:0;background:var(--paper);display:grid;place-items:center;z-index:100;transition:opacity .4s}
+  #boot.hide{opacity:0;pointer-events:none}
+
+  .hint{font-size:.84rem;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 13px;margin-top:14px}
+  .hint b{color:var(--ink)}
+
+  footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;padding:26px 22px}
+  footer .main{font-size:.85rem}
+  footer .legal{font-size:.66rem;line-height:1.5;max-width:760px;margin:10px auto 0;color:#9a938e}
+
+  @media(max-width:720px){
+    .bar-inner{flex-wrap:wrap}
+    .stat-row{grid-template-columns:1fr}
+    .hero{padding:34px 24px}
+    .nav-pill{order:3;width:100%;justify-content:space-between}
+    .table-scroll{overflow-x:auto}
+    table{min-width:560px}
+  }
+</style>
+</head>
+<body>
+
+<div id="boot"><div style="text-align:center"><div class="spin dark" style="width:30px;height:30px;margin:0 auto 14px"></div><div style="font-family:'Fraunces';color:var(--muted)">Opening the library…</div></div></div>
+
+<header class="topbar">
+  <div class="bar-inner">
+    <div class="brand">
+      <span class="crest">DA</span>
+      <span>Doral Academy Library</span>
+    </div>
+    <div class="spacer"></div>
+    <nav class="nav-pill" id="nav">
+      <button data-page="home" class="active">Home</button>
+      <button data-page="catalog">Catalog</button>
+      <button data-page="dashboard" data-auth="1" style="display:none">My Shelf</button>
+      <button data-page="admin" data-admin="1" style="display:none">Librarian</button>
+    </nav>
+    <div class="who" id="who">
+      <button class="btn btn-ghost btn-sm" id="loginBtn">Sign in</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section class="page show" id="page-home">
+    <div class="hero">
+      <div class="eyebrow">Doral Academy</div>
+      <h1>Find your next read, the easy way.</h1>
+      <p>Browse the collection, see what's on the shelf, and keep track of every book you've borrowed and returned — all in one place.</p>
+      <div class="actions">
+        <button class="btn btn-red" onclick="go('catalog')">Browse the catalog</button>
+        <button class="btn btn-ghost" id="heroSign">Create student account</button>
+      </div>
+      <div class="rule"></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><b id="sTotal">0</b><span>Books in the collection</span></div>
+      <div class="stat"><b id="sIn">0</b><span>Available right now</span></div>
+      <div class="stat"><b id="sOut">0</b><span>Currently checked out</span></div>
+    </div>
+    <div class="hint"><b>Students</b> can browse and track their own borrowing. Only the <b>librarian</b> can check books in and out.</div>
+  </section>
+
+  <!-- CATALOG -->
+  <section class="page" id="page-catalog">
+    <div class="section-head">
+      <div><h2>The Collection</h2><p>Everything on our shelves. Search by title, author, or ISBN.</p></div>
+    </div>
+    <div class="toolbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input class="input" id="catSearch" placeholder="Search the catalog…" oninput="renderCatalog()"/>
+      </div>
+      <select class="input" id="catFilter" style="max-width:200px" onchange="renderCatalog()">
+        <option value="all">All books</option>
+        <option value="in library">Available</option>
+        <option value="checked out">Checked out</option>
+      </select>
+    </div>
+    <div id="catGrid" class="grid"></div>
+  </section>
+
+  <!-- STUDENT DASHBOARD -->
+  <section class="page" id="page-dashboard">
+    <div class="section-head">
+      <div><h2 id="dashHi">My Shelf</h2><p>Your borrowing history — what you have now and what you've returned.</p></div>
+    </div>
+    <div class="stat-row" style="margin-top:0">
+      <div class="stat"><b id="dCur">0</b><span>Currently borrowed</span></div>
+      <div class="stat"><b id="dRet">0</b><span>Returned all-time</span></div>
+      <div class="stat"><b id="dTot">0</b><span>Total activity</span></div>
+    </div>
+    <div class="section-head"><div><h2 style="font-size:1.25rem">Currently checked out</h2></div></div>
+    <div id="dashCurrent"></div>
+    <div class="section-head"><div><h2 style="font-size:1.25rem">Activity history</h2><p>Every checkout and return, with dates.</p></div></div>
+    <div class="panel table-scroll" id="dashHistory"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section class="page" id="page-admin">
+    <div class="section-head">
+      <div><h2>Librarian Desk</h2><p>Add books, check them in and out, and review all activity.</p></div>
+    </div>
+
+    <div class="panel">
+      <h2 style="font-size:1.2rem;margin-bottom:14px">Add a book</h2>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:12px;align-items:end" id="addRow">
+        <div class="field"><label>Title</label><input class="input" id="bTitle" placeholder="The Great Gatsby"/></div>
+        <div class="field"><label>Author</label><input class="input" id="bAuthor" placeholder="F. Scott Fitzgerald"/></div>
+        <div class="field"><label>ISBN</label><input class="input" id="bIsbn" placeholder="978-0-7432-7356-5"/></div>
+        <button class="btn btn-red" id="addBtn" onclick="addBook()">Add</button>
+      </div>
+      <div class="note" id="addNote"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-head" style="margin:0 0 14px">
+        <div><h2 style="font-size:1.2rem">Manage circulation</h2></div>
+        <div class="search" style="max-width:280px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input class="input" id="admSearch" placeholder="Find a book…" oninput="renderAdminBooks()"/>
+        </div>
+      </div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Title</th><th>ISBN</th><th>Status</th><th>Held by</th><th>Last checkout</th><th style="text-align:right">Action</th></tr></thead>
+        <tbody id="admBooks"></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <h2 style="font-size:1.2rem;margin-bottom:14px">All activity</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Date</th><th>Action</th><th>Book</th><th>Student</th><th>Student ID</th></tr></thead>
+        <tbody id="admHistory"></tbody>
+      </table></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="main">Doral Academy Library</div>
+  <div class="legal">
+    &copy; <span id="yr"></span> Doral Academy Library. For use by enrolled Doral Academy students and authorized staff only.
+    This system stores account information (student ID, name) and borrowing records solely for the purpose of managing library circulation.
+    Personal data is not sold or shared with third parties and is retained only as long as necessary for library operations.
+    Unauthorized access, use, or attempts to access accounts other than your own are prohibited. Use of this system constitutes acceptance of these terms.
+    Doral Academy Library is not affiliated with, sponsored by, or endorsed by the authors or publishers of any titles listed in this catalog.
+    All trademarks and book titles are the property of their respective owners.
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="authModal">
+  <div class="modal modal-wrap">
+    <button class="modal-x" onclick="closeAuth()">×</button>
+    <div class="switch" id="roleSwitch">
+      <button class="active" data-role="student" onclick="setRole('student')">Student</button>
+      <button data-role="admin" onclick="setRole('admin')">Librarian</button>
+    </div>
+    <h2 id="authTitle">Student sign in</h2>
+    <p class="sub" id="authSub">Use your Student ID and password.</p>
+
+    <div class="switch" id="modeSwitch">
+      <button class="active" data-mode="login" onclick="setMode('login')">Sign in</button>
+      <button data-mode="signup" onclick="setMode('signup')">Create account</button>
+    </div>
+
+    <div class="field" id="fName" style="display:none"><label>Full name</label><input class="input" id="iName" placeholder="Jane Student"/></div>
+    <div class="field" id="fSid"><label>Student ID</label><input class="input" id="iSid" placeholder="e.g. 1234567"/></div>
+    <div class="field"><label>Password</label><input class="input" id="iPass" type="password" placeholder="••••••••"/></div>
+
+    <div class="note" id="authNote"></div>
+    <button class="btn btn-red full" id="authSubmit" style="margin-top:6px" onclick="submitAuth()">Sign in</button>
+
+    <div id="googleWrap">
+      <div class="divider">or</div>
+      <button class="google" id="googleBtn" onclick="googleAuth()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.4 5.4 2.6 13.2l7.8 6.1C12.2 13.6 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-3.9 6.8-9.7 6.8-17.4z"/><path fill="#FBBC05" d="M10.4 28.3c-.5-1.5-.8-3.1-.8-4.8s.3-3.3.8-4.8l-7.8-6.1C.9 16 0 19.9 0 24s.9 8 2.6 11.4l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.4 0-11.8-4.1-13.7-9.8l-7.8 6.1C6.4 42.6 14.6 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <div class="hint" id="googleSid" style="display:none">After Google sign-in, students must add their <b>Student ID</b> and <b>Full name</b> to finish.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="overlay" id="coModal">
+  <div class="modal modal-wrap">
+    <button class="modal-x" onclick="closeCo()">×</button>
+    <h2>Check out a book</h2>
+    <p class="sub" id="coBook"></p>
+    <div class="field"><label>Student ID</label><input class="input" id="coSid" placeholder="Student receiving the book"/></div>
+    <div class="field"><label>Student name</label><input class="input" id="coName" placeholder="Full name"/></div>
+    <div class="note" id="coNote"></div>
+    <button class="btn btn-red full" style="margin-top:6px" id="coBtn" onclick="confirmCheckout()">Confirm checkout</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ============ FIREBASE + APP LOGIC ============ -->
+<script type="module">
+/* Firebase SDK functions are loaded LAZILY (only when a real config is present)
+   so the app — including full Demo Mode — works offline / with no connection. */
+let FB = {};   // will hold Firebase functions after loadFirebase() runs
+
+/* ===== 1. PASTE YOUR FIREBASE CONFIG HERE ===== */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const CONFIGURED = !firebaseConfig.apiKey.startsWith("YOUR_");
+
+/* Student IDs are turned into emails so Firebase Auth can store them.
+   A student with ID 1234567 logs in internally as 1234567@students.dorallibrary.app */
+const STUDENT_DOMAIN = "students.dorallibrary.app";
+
+let app, auth, db;
+let DEMO = !CONFIGURED;           // if not configured, run with in-memory demo data
+let me = null;                    // {uid, role, sid, name}
+let books = [];                   // cached catalog
+let history = [];                 // cached full history (admin)
+let authRole = "student", authMode = "login";
+let pendingSetup = false;   // true while a Google student must still add a Student ID
+
+/* ---------- DEMO fallback data (only used until Firebase is configured) ---------- */
+const demo = {
+  books:[
+    {id:"b1",title:"The Great Gatsby",author:"F. Scott Fitzgerald",isbn:"978-0-7432-7356-5",state:"in library",holderSid:"",holderName:"",lastCheckout:null},
+    {id:"b2",title:"To Kill a Mockingbird",author:"Harper Lee",isbn:"978-0-06-112008-4",state:"checked out",holderSid:"1002345",holderName:"Maria Lopez",lastCheckout:"2026-05-28"},
+    {id:"b3",title:"1984",author:"George Orwell",isbn:"978-0-452-28423-4",state:"in library",holderSid:"",holderName:"",lastCheckout:"2026-04-10"},
+    {id:"b4",title:"The Hobbit",author:"J.R.R. Tolkien",isbn:"978-0-547-92822-7",state:"in library",holderSid:"",holderName:"",lastCheckout:null},
+    {id:"b5",title:"Pride and Prejudice",author:"Jane Austen",isbn:"978-1-5011-2902-1",state:"checked out",holderSid:"1009876",holderName:"You Demo",lastCheckout:"2026-06-01"}
+  ],
+  history:[
+    {id:"h1",action:"checked out",bookTitle:"To Kill a Mockingbird",bookIsbn:"978-0-06-112008-4",sid:"1002345",name:"Maria Lopez",date:"2026-05-28"},
+    {id:"h2",action:"returned",bookTitle:"1984",bookIsbn:"978-0-452-28423-4",sid:"1009876",name:"You Demo",date:"2026-05-15"},
+    {id:"h3",action:"checked out",bookTitle:"1984",bookIsbn:"978-0-452-28423-4",sid:"1009876",name:"You Demo",date:"2026-05-01"},
+    {id:"h4",action:"checked out",bookTitle:"Pride and Prejudice",bookIsbn:"978-1-5011-2902-1",sid:"1009876",name:"You Demo",date:"2026-06-01"}
+  ]
+};
+
+/* ---------- boot ---------- */
+document.getElementById("yr").textContent = new Date().getFullYear();
+// Failsafe: no matter what happens, never leave the boot overlay stuck.
+setTimeout(hideBoot, 4000);
+
+(async function boot(){
+  try{
+    if (CONFIGURED){
+      await loadFirebase();
+      app = FB.initializeApp(firebaseConfig);
+      auth = FB.getAuth(app);
+      db = FB.getFirestore(app);
+      FB.onAuthStateChanged(auth, handleAuthState);
+      subscribeBooks();
+    } else {
+      books = JSON.parse(JSON.stringify(demo.books));
+      history = JSON.parse(JSON.stringify(demo.history));
+      toast("Demo mode — add your Firebase config to go live");
+    }
+  }catch(e){
+    // If Firebase fails to load (offline, bad config), fall back to demo data.
+    console.error("Startup issue, falling back to demo mode:", e);
+    DEMO = true;
+    books = JSON.parse(JSON.stringify(demo.books));
+    history = JSON.parse(JSON.stringify(demo.history));
+    toast("Couldn't reach Firebase — showing demo data");
+  }
+  refreshAll();
+  hideBoot();
+})();
+
+async function loadFirebase(){
+  const [appMod, authMod, fsMod] = await Promise.all([
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")
+  ]);
+  FB = { ...appMod, ...authMod, ...fsMod };
+}
+
+function hideBoot(){
+  const b = document.getElementById("boot");
+  if (b) b.classList.add("hide");
+}
+
+/* ===================== AUTH ===================== */
+const sidToEmail = sid => `${sid.trim()}@${STUDENT_DOMAIN}`;
+
+async function handleAuthState(user){
+  if(!user){ me=null; afterAuth(); return; }
+  // load profile from users/{uid}
+  let prof = {};
+  try{ const s = await FB.getDoc(FB.doc(db,"users",user.uid)); if(s.exists()) prof=s.data(); }catch(e){}
+  me = { uid:user.uid, email:user.email, role:prof.role||"student", sid:prof.sid||"", name:prof.name||user.displayName||"" };
+  // Google students who haven't added a Student ID yet — must complete before use
+  if(me.role==="student" && !me.sid){
+    pendingSetup = true;
+    openAuth("student"); setRole("student"); setMode("signup");
+    document.getElementById("iName").value = me.name || user.displayName || "";
+    document.getElementById("authTitle").textContent = "One more step";
+    document.getElementById("authSub").textContent = "Link your Student ID to finish setting up your account.";
+    document.getElementById("authNote").className="note ok";
+    document.getElementById("authNote").textContent="You're signed in with Google — add your Student ID and full name to continue.";
+    document.getElementById("iPass").parentElement.style.display="none";
+    document.getElementById("modeSwitch").style.display="none";
+    document.getElementById("roleSwitch").style.display="none";
+    document.getElementById("googleWrap").style.display="none";
+    document.getElementById("authModal").querySelector(".modal-x").style.display="none";
+    document.getElementById("authSubmit").textContent="Finish setup";
+    document.getElementById("authSubmit").dataset.finish="1";
+  }
+  afterAuth();
+}
+
+window.submitAuth = async function(){
+  const note=document.getElementById("authNote"); note.className="note";
+  const pass=document.getElementById("iPass").value;
+  const sid=document.getElementById("iSid").value.trim();
+  const name=document.getElementById("iName").value.trim();
+  const btn=document.getElementById("authSubmit");
+
+  // Google finish-setup branch
+  if(btn.dataset.finish==="1"){
+    if(!sid||!name) return err(note,"Student ID and full name are required.");
+    setLoading(btn,true);
+    try{
+      await FB.setDoc(FB.doc(db,"users",me.uid),{role:"student",sid,name,email:me.email},{merge:true});
+      me.sid=sid; me.name=name; delete btn.dataset.finish; pendingSetup=false;
+      btn.textContent="Sign in"; document.getElementById("iPass").parentElement.style.display="";
+      document.getElementById("modeSwitch").style.display="flex";
+      document.getElementById("roleSwitch").style.display="flex";
+      document.getElementById("googleWrap").style.display="block";
+      document.getElementById("authModal").querySelector(".modal-x").style.display="";
+      ok(note,"You're all set!"); setTimeout(()=>{closeAuth();afterAuth();toast("Welcome, "+name);},700);
+    }catch(e){ err(note,e.message); }
+    setLoading(btn,false); return;
+  }
+
+  if(authRole==="admin"){
+    if(!sid||!pass) return err(note,"Enter admin email and password.");
+    if(!CONFIGURED){ demoLogin("admin",sid,"Librarian"); return; }
+    setLoading(btn,true);
+    try{ await FB.signInWithEmailAndPassword(auth, sid.includes("@")?sid:sidToEmail(sid), pass);
+      closeAuth(); }catch(e){ err(note,"Could not sign in. Check credentials."); }
+    setLoading(btn,false); return;
+  }
+
+  // student
+  if(!sid) return err(note,"Student ID is required.");
+  if(!pass) return err(note,"Password is required.");
+  if(authMode==="signup" && !name) return err(note,"Full name is required.");
+
+  if(!CONFIGURED){ demoLogin("student",sid,name||"Demo Student"); return; }
+  setLoading(btn,true);
+  const email=sidToEmail(sid);
+  try{
+    if(authMode==="signup"){
+      const cred=await FB.createUserWithEmailAndPassword(auth,email,pass);
+      await FB.setDoc(FB.doc(db,"users",cred.user.uid),{role:"student",sid,name,email});
+    }else{
+      await FB.signInWithEmailAndPassword(auth,email,pass);
+    }
+    closeAuth();
+  }catch(e){
+    if(e.code==="auth/email-already-in-use") err(note,"That Student ID already has an account. Try signing in.");
+    else if(e.code==="auth/invalid-credential"||e.code==="auth/wrong-password") err(note,"Wrong Student ID or password.");
+    else if(e.code==="auth/weak-password") err(note,"Password must be at least 6 characters.");
+    else err(note,e.message);
+  }
+  setLoading(btn,false);
+};
+
+window.googleAuth = async function(){
+  if(!CONFIGURED){ demoLogin("student","1009876","Google Demo"); return; }
+  try{ await FB.signInWithPopup(auth,new FB.GoogleAuthProvider()); }
+  catch(e){ err(document.getElementById("authNote"),"Google sign-in failed."); }
+};
+
+function demoLogin(role,sid,name){
+  me={uid:"demo",role,sid,name,email:role+"@demo"};
+  closeAuth(); afterAuth(); toast("Demo: signed in as "+role);
+}
+
+window.logout = async function(){
+  if(CONFIGURED){ await FB.signOut(auth); } me=null; afterAuth(); toast("Signed out");
+};
+
+/* ===================== DATA ===================== */
+function subscribeBooks(){
+  FB.onSnapshot(FB.collection(db,"books"), snap=>{
+    books = snap.docs.map(d=>({id:d.id,...d.data(),
+      lastCheckout: d.data().lastCheckout?.toDate?.().toISOString().slice(0,10) || d.data().lastCheckout || null}));
+    refreshAll();
+  });
+}
+
+window.addBook = async function(){
+  const note=document.getElementById("addNote"); note.className="note";
+  const title=document.getElementById("bTitle").value.trim();
+  const author=document.getElementById("bAuthor").value.trim();
+  const isbn=document.getElementById("bIsbn").value.trim();
+  if(!title||!isbn) return err(note,"Title and ISBN are required.");
+  if(books.some(b=>b.isbn===isbn)) return err(note,"A book with that ISBN already exists.");
+  const btn=document.getElementById("addBtn"); setLoading(btn,true);
+  const rec={title,author,isbn,state:"in library",holderSid:"",holderName:"",lastCheckout:null};
+  try{
+    if(CONFIGURED){ await FB.addDoc(FB.collection(db,"books"),rec); }
+    else{ books.push({id:"b"+Date.now(),...rec}); refreshAll(); }
+    ["bTitle","bAuthor","bIsbn"].forEach(i=>document.getElementById(i).value="");
+    ok(note,`"${title}" added to the collection.`); toast("Book added");
+  }catch(e){ err(note,e.message); }
+  setLoading(btn,false);
+};
+
+let coBookRef=null;
+window.openCheckout = function(id){
+  const b=books.find(x=>x.id===id); coBookRef=b;
+  document.getElementById("coBook").textContent=`${b.title} · ${b.isbn}`;
+  document.getElementById("coSid").value=""; document.getElementById("coName").value="";
+  document.getElementById("coNote").className="note";
+  document.getElementById("coModal").classList.add("show");
+};
+window.closeCo=()=>document.getElementById("coModal").classList.remove("show");
+
+window.confirmCheckout = async function(){
+  const note=document.getElementById("coNote"); note.className="note";
+  const sid=document.getElementById("coSid").value.trim();
+  const name=document.getElementById("coName").value.trim();
+  if(!sid||!name) return err(note,"Student ID and name are required.");
+  const btn=document.getElementById("coBtn"); setLoading(btn,true);
+  const today=new Date().toISOString().slice(0,10);
+  try{
+    await writeBookState(coBookRef.id,{state:"checked out",holderSid:sid,holderName:name,lastCheckout:today});
+    await logHistory("checked out",coBookRef,sid,name,today);
+    closeCo(); toast("Checked out to "+name);
+  }catch(e){ err(note,e.message); }
+  setLoading(btn,false);
+};
+
+window.returnBook = async function(id){
+  const b=books.find(x=>x.id===id);
+  if(!confirm(`Mark "${b.title}" as returned?`)) return;
+  const today=new Date().toISOString().slice(0,10);
+  try{
+    await logHistory("returned",b,b.holderSid,b.holderName,today);
+    await writeBookState(id,{state:"in library",holderSid:"",holderName:"",lastCheckout:today});
+    toast("Returned");
+  }catch(e){ toast("Error: "+e.message); }
+};
+
+window.deleteBook = async function(id){
+  const b=books.find(x=>x.id===id);
+  if(!confirm(`Delete "${b.title}" permanently?`)) return;
+  if(CONFIGURED){ await FB.deleteDoc(FB.doc(db,"books",id)); }
+  else{ books=books.filter(x=>x.id!==id); refreshAll(); }
+  toast("Book deleted");
+};
+
+async function writeBookState(id,patch){
+  if(CONFIGURED){ await FB.updateDoc(FB.doc(db,"books",id),patch); }
+  else{ const b=books.find(x=>x.id===id); Object.assign(b,patch); refreshAll(); }
+}
+async function logHistory(action,b,sid,name,date){
+  const rec={action,bookTitle:b.title,bookIsbn:b.isbn,sid,name,date,ts:Date.now()};
+  if(CONFIGURED){ await FB.addDoc(FB.collection(db,"history"),{...rec,createdAt:FB.serverTimestamp()}); }
+  else{ history.unshift({id:"h"+Date.now(),...rec}); }
+}
+
+async function loadHistory(){
+  if(!CONFIGURED) return history;
+  const snap=await FB.getDocs(FB.query(FB.collection(db,"history"),FB.orderBy("ts","desc")));
+  history=snap.docs.map(d=>({id:d.id,...d.data()}));
+  return history;
+}
+
+/* ===================== RENDER ===================== */
+function refreshAll(){ renderHome(); renderCatalog(); renderAdminBooks(); renderDashboard(); }
+
+function renderHome(){
+  document.getElementById("sTotal").textContent=books.length;
+  document.getElementById("sIn").textContent=books.filter(b=>b.state==="in library").length;
+  document.getElementById("sOut").textContent=books.filter(b=>b.state==="checked out").length;
+}
+
+window.renderCatalog=function(){
+  const q=(document.getElementById("catSearch").value||"").toLowerCase();
+  const f=document.getElementById("catFilter").value;
+  const grid=document.getElementById("catGrid");
+  let list=books.filter(b=>(b.title+b.author+b.isbn).toLowerCase().includes(q));
+  if(f!=="all") list=list.filter(b=>b.state===f);
+  if(!list.length){ grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><b>No books found</b>Try a different search or filter.</div>`; return; }
+  grid.innerHTML=list.map(bookCard).join("");
+};
+function bookCard(b){
+  const out=b.state==="checked out";
+  return `<div class="book"><span class="spine" style="background:${out?'var(--red)':'var(--green)'}"></span>
+    <h3>${esc(b.title)}</h3>
+    <div class="author">${esc(b.author||"Unknown author")}</div>
+    <div class="isbn">ISBN ${esc(b.isbn)}</div>
+    <div class="foot"><span class="pill ${out?'out':'in'}">${out?'Checked out':'Available'}</span>
+    ${b.lastCheckout?`<span style="font-size:.76rem;color:var(--muted)">last: ${b.lastCheckout}</span>`:""}</div>
+    ${out?`<div class="holder">With ${esc(b.holderName||'a student')}</div>`:""}</div>`;
+}
+
+window.renderAdminBooks=function(){
+  if(!me||me.role!=="admin") return;
+  const q=(document.getElementById("admSearch").value||"").toLowerCase();
+  const tb=document.getElementById("admBooks");
+  const list=books.filter(b=>(b.title+b.isbn).toLowerCase().includes(q));
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:26px">No books yet — add one above.</td></tr>`; }
+  else tb.innerHTML=list.map(b=>{
+    const out=b.state==="checked out";
+    return `<tr><td><b style="font-family:'Fraunces'">${esc(b.title)}</b><br><span style="color:var(--muted);font-size:.82rem;font-style:italic">${esc(b.author||"")}</span></td>
+      <td style="font-family:monospace;font-size:.8rem">${esc(b.isbn)}</td>
+      <td><span class="pill ${out?'out':'in'}">${out?'Checked out':'Available'}</span></td>
+      <td>${out?esc(b.holderName||"")+`<br><span style="color:var(--muted);font-size:.78rem">#${esc(b.holderSid)}</span>`:"—"}</td>
+      <td style="color:var(--muted)">${b.lastCheckout||"—"}</td>
+      <td style="text-align:right">${out
+        ?`<button class="btn btn-ghost btn-sm" onclick="returnBook('${b.id}')">Return</button>`
+        :`<button class="btn btn-red btn-sm" onclick="openCheckout('${b.id}')">Check out</button>`}
+        <button class="btn btn-ghost btn-sm" title="Delete" style="padding:7px 11px" onclick="deleteBook('${b.id}')">Delete</button></td></tr>`;
+  }).join("");
+
+  loadHistory().then(h=>{
+    const ht=document.getElementById("admHistory");
+    if(!h.length){ ht.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:26px">No activity yet.</td></tr>`; return; }
+    ht.innerHTML=h.slice(0,200).map(r=>`<tr><td style="color:var(--muted)">${r.date}</td>
+      <td><span class="tag ${r.action==='checked out'?'checkout':'return'}">${r.action}</span></td>
+      <td>${esc(r.bookTitle)}</td><td>${esc(r.name)}</td><td style="font-family:monospace;font-size:.82rem">${esc(r.sid)}</td></tr>`).join("");
+  });
+};
+
+async function renderDashboard(){
+  if(!me||me.role!=="student"){ return; }
+  document.getElementById("dashHi").textContent=`${me.name?me.name.split(" ")[0]+"'s":"My"} Shelf`;
+  const h=(await loadHistory()).filter(r=>r.sid===me.sid).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  // current = books currently checked out to this student
+  const current=books.filter(b=>b.state==="checked out"&&b.holderSid===me.sid);
+  document.getElementById("dCur").textContent=current.length;
+  document.getElementById("dRet").textContent=h.filter(r=>r.action==="returned").length;
+  document.getElementById("dTot").textContent=h.length;
+
+  const cur=document.getElementById("dashCurrent");
+  cur.innerHTML = current.length
+    ? `<div class="grid">${current.map(bookCard).join("")}</div>`
+    : `<div class="empty"><b>Nothing checked out</b>Visit the catalog and ask the librarian to check a book out for you.</div>`;
+
+  const ht=document.getElementById("dashHistory");
+  ht.innerHTML = h.length
+    ? `<table><thead><tr><th>Date</th><th>Action</th><th>Book</th><th>ISBN</th></tr></thead><tbody>${
+        h.map(r=>`<tr><td style="color:var(--muted)">${r.date}</td>
+        <td><span class="tag ${r.action==='checked out'?'checkout':'return'}">${r.action}</span></td>
+        <td>${esc(r.bookTitle)}</td><td style="font-family:monospace;font-size:.82rem">${esc(r.bookIsbn)}</td></tr>`).join("")
+      }</tbody></table>`
+    : `<div class="empty" style="border:none"><b>No activity yet</b>Your checkouts and returns will appear here.</div>`;
+}
+
+/* ===================== NAV / UI ===================== */
+window.go=function(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));
+  document.getElementById("page-"+page).classList.add("show");
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  if(page==="admin") renderAdminBooks(); if(page==="dashboard") renderDashboard();
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+document.getElementById("nav").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  const p=b.dataset.page;
+  if((b.dataset.auth&&!me)||(b.dataset.admin&&(!me||me.role!=="admin"))){ openAuth(b.dataset.admin?"admin":"student"); return; }
+  go(p);
+});
+
+function afterAuth(){
+  const who=document.getElementById("who");
+  document.querySelector('[data-page="dashboard"]').style.display = (me&&me.role==="student")?"":"none";
+  document.querySelector('[data-page="admin"]').style.display = (me&&me.role==="admin")?"":"none";
+  if(me){
+    who.innerHTML=`<span class="badge">${me.role}</span><span>${esc(me.name||me.sid||"Account")}</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>`;
+  }else{
+    who.innerHTML=`<button class="btn btn-ghost btn-sm" id="loginBtn">Sign in</button>`;
+    document.getElementById("loginBtn").onclick=()=>openAuth("student");
+    if(["dashboard","admin"].includes(curPage())) go("home");
+  }
+  refreshAll();
+}
+const curPage=()=>[...document.querySelectorAll(".page")].find(p=>p.classList.contains("show"))?.id.replace("page-","");
+
+/* ---- auth modal controls ---- */
+window.openAuth=function(role){ setRole(role||"student"); setMode("login");
+  document.getElementById("authNote").className="note";
+  document.getElementById("authModal").classList.add("show"); };
+window.closeAuth=function(){
+  // If a Google student hasn't linked their Student ID yet, don't let them in
+  // with an incomplete account — sign them back out instead of just closing.
+  if(pendingSetup){
+    pendingSetup=false;
+    if(CONFIGURED && auth){ FB.signOut(auth); }
+    me=null; afterAuth();
+    // restore the modal to its normal state for next time
+    document.getElementById("iPass").parentElement.style.display="";
+    document.getElementById("modeSwitch").style.display="flex";
+    document.getElementById("roleSwitch").style.display="flex";
+    document.getElementById("googleWrap").style.display="block";
+    document.getElementById("authModal").querySelector(".modal-x").style.display="";
+    delete document.getElementById("authSubmit").dataset.finish;
+    document.getElementById("authSubmit").textContent="Sign in";
+    toast("Sign-up cancelled — Student ID is required");
+  }
+  document.getElementById("authModal").classList.remove("show");
+};
+window.setRole=function(r){ authRole=r;
+  document.querySelectorAll("#roleSwitch button").forEach(b=>b.classList.toggle("active",b.dataset.role===r));
+  document.getElementById("modeSwitch").style.display = r==="admin"?"none":"flex";
+  document.getElementById("googleWrap").style.display = r==="admin"?"none":"block";
+  document.getElementById("fSid").querySelector("label").textContent = r==="admin"?"Admin email":"Student ID";
+  document.getElementById("iSid").placeholder = r==="admin"?"librarian@school.org":"e.g. 1234567";
+  document.getElementById("authTitle").textContent = r==="admin"?"Librarian sign in":"Student sign in";
+  document.getElementById("authSub").textContent = r==="admin"?"Staff accounts only.":"Use your Student ID and password.";
+  if(r==="admin") setMode("login");
+};
+window.setMode=function(m){ authMode=m;
+  document.querySelectorAll("#modeSwitch button").forEach(b=>b.classList.toggle("active",b.dataset.mode===m));
+  document.getElementById("fName").style.display = (m==="signup"&&authRole==="student")?"flex":"none";
+  document.getElementById("authSubmit").textContent = m==="signup"?"Create account":"Sign in";
+  document.getElementById("googleSid").style.display = m==="signup"?"block":"none";
+};
+
+document.getElementById("heroSign").onclick=()=>{ openAuth("student"); setMode("signup"); };
+document.getElementById("loginBtn").onclick=()=>openAuth("student");
+
+/* ---- helpers ---- */
+function esc(s){return (s??"").toString().replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function err(n,m){n.className="note err";n.textContent=m;}
+function ok(n,m){n.className="note ok";n.textContent=m;}
+function setLoading(btn,on){ btn.disabled=on; btn.dataset.txt=btn.dataset.txt||btn.textContent;
+  btn.innerHTML = on?'<span class="spin"></span>':btn.dataset.txt; if(!on)btn.textContent=btn.dataset.txt; }
+let toastT;
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2600);}
+window.toast=toast;
+</script>
+</body>
+</html>

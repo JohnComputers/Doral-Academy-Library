@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: is the signed-in user an admin/librarian?
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // USER PROFILES -------------------------------------------------
+    // A student may read/create/update only their OWN profile.
+    // A student can never grant themselves the admin role.
+    match /users/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.role == 'student';
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.role == 'student';
+      // Promoting someone to admin must be done manually in the console.
+    }
+
+    // BOOKS ---------------------------------------------------------
+    // Everyone signed in can read the catalog.
+    // Only admins can add, edit, check out / return, or delete books.
+    match /books/{bookId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // CHECKOUT / RETURN HISTORY ------------------------------------
+    // Students can read only their own history rows.
+    // Only admins can create history entries (they perform checkouts).
+    match /history/{entryId} {
+      allow read: if request.auth != null
+                  && (isAdmin()
+                      || resource.data.sid ==
+                         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.sid);
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
